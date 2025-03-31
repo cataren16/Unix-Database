@@ -1,0 +1,69 @@
+#!/bin/bash
+clear
+if [ $# -gt 0 ]
+then echo -e "Masini:argument error">&2
+echo "usage: Masini">&2
+exit 1
+fi
+BASE="$HOME/masini.list"
+while :
+do
+echo -e "
+Masini=$BASE
+MENIU
+------------------------------
+Adauga masina in lista (a)
+Sterge masina din lista (d)
+Editeaza lista (e)
+Cauta masina in lista (s)
+Vezi lista completa (v)
+<ENTER> Iesire program
+Selectati a/d/e/s/v or <ENTER>:\c
+------------------------------
+"
+read raspuns
+case $raspuns in
+"") exit 0;;
+a|A) echo -e "Introduceti marca masinii:\c"
+read marca
+if [ $marca = "" ]
+then continue
+fi
+echo -e "Introduceti modelul masinii:\c"
+read model
+echo -e "Introduceti motorizarea masinii:\c"
+read motor
+echo -e "$marca\t\t$model\t\t$motor">>$BASE
+sort -o $BASE $BASE
+;;
+d|D) echo -e "Introduceti marca pe care vreti s-o stergeti (<ENTER> iesire):\c"
+read marca
+if [ $marca = "" ]
+then continue
+fi
+sed -e "/$marca/d" $BASE > $BASE.new
+mv $BASE.new $BASE
+;;
+e|E) pico $BASE;;
+s|S) echo -e "\n Introduceti masina pe care o cautati:\c"
+read marca
+grep -i $marca $BASE > /dev/null
+if [ "$?" -eq 0 ]
+then
+echo -e "\n--------------------------------"
+grep -i $marca $BASE
+echo -e "\n--------------------------------"
+else
+echo "$marca NU s-a gasit in lista!"
+fi
+;;
+v|V)clear
+ echo -e "\n\t Lista autoturismelor \n\t---------------------"
+more $BASE
+echo -e "\n Apasati <ENTER>\c"
+read raspuns
+;;
+*) echo -e "Optiune invalida!"
+;;
+esac
+done
